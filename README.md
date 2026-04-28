@@ -1,7 +1,8 @@
-# Solo — Alessandro Manzo
+# Team — AI FIRST
 
 ## Participants
-- Alessandro Manzo (PM, Architect, Developer, Quality — solo run)
+- Alessandro Manzo (PM, Architect, Developer, Quality)
+- Massimo Virno (PM, PM, Architect, Developer, Quality)
 
 ## Scenario
 Scenario 5: Agentic Solution
