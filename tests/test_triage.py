@@ -33,13 +33,21 @@ _EXPECTED_TRIAGE = TriageResult(
     tags=["vpn"],
 )
 
+# Simulate a tool_use block returned by Bedrock
+def _mock_tool_use_response(data: dict):
+    block = MagicMock()
+    block.type = "tool_use"
+    block.input = data
+    response = MagicMock()
+    response.content = [block]
+    return response
+
 
 def test_run_triage_returns_triage_result():
-    mock_response = MagicMock()
-    mock_response.parsed = _EXPECTED_TRIAGE
+    mock_response = _mock_tool_use_response(_EXPECTED_TRIAGE.model_dump())
 
     with patch("servicedesk.agents.triage._client") as mock_client:
-        mock_client.beta.messages.parse.return_value = mock_response
+        mock_client.messages.create.return_value = mock_response
         from servicedesk.agents.triage import run_triage
         result = run_triage(_DUMMY_TICKET, _DUMMY_USER)
 
@@ -49,14 +57,13 @@ def test_run_triage_returns_triage_result():
 
 
 def test_run_triage_passes_correct_model():
-    mock_response = MagicMock()
-    mock_response.parsed = _EXPECTED_TRIAGE
+    mock_response = _mock_tool_use_response(_EXPECTED_TRIAGE.model_dump())
 
     with patch("servicedesk.agents.triage._client") as mock_client:
-        mock_client.beta.messages.parse.return_value = mock_response
+        mock_client.messages.create.return_value = mock_response
         from servicedesk.agents.triage import run_triage
         run_triage(_DUMMY_TICKET, _DUMMY_USER)
 
-    call_kwargs = mock_client.beta.messages.parse.call_args[1]
+    call_kwargs = mock_client.messages.create.call_args[1]
     assert "haiku" in call_kwargs["model"]
-    assert call_kwargs["response_format"] is TriageResult
+    assert call_kwargs["tool_choice"] == {"type": "tool", "name": "result"}

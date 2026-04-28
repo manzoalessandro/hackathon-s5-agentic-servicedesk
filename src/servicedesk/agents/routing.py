@@ -1,12 +1,12 @@
 """Routing subagent — maps a classified ticket to the correct team and queue."""
 from __future__ import annotations
 
-import anthropic
-from servicedesk.config import ROUTING_MODEL, ROUTING_MATRIX
+from anthropic import AnthropicBedrock
+from servicedesk.config import ROUTING_MODEL, ROUTING_MATRIX, AWS_PROFILE
 from servicedesk.models.schemas import TriageResult, RoutingResult
 
 
-_client = anthropic.Anthropic()
+_client = AnthropicBedrock(aws_profile=AWS_PROFILE)
 
 _ROUTING_TABLE_TEXT = "\n".join(
     f"- {cat}: team={team}, queue={queue}, sla={sla}min"
@@ -57,11 +57,19 @@ Tags: {", ".join(triage.tags) if triage.tags else "none"}
 Select the correct team and queue from the routing matrix and write an assignment note.
 """
 
-    response = _client.beta.messages.parse(
+    response = _client.messages.create(
         model=ROUTING_MODEL,
         max_tokens=256,
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_message}],
-        response_format=RoutingResult,
+        tools=[{
+            "name": "result",
+            "description": "Return the routing decision.",
+            "input_schema": RoutingResult.model_json_schema(),
+        }],
+        tool_choice={"type": "tool", "name": "result"},
     )
-    return response.parsed
+    for block in response.content:
+        if block.type == "tool_use":
+            return RoutingResult(**block.input)
+    raise ValueError("Routing subagent returned no tool_use block")

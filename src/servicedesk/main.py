@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import sys
+if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel

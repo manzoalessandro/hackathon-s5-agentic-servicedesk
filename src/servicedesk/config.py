@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import os
 
-# ── Models ────────────────────────────────────────────────────────────────────
-COORDINATOR_MODEL = os.getenv("COORDINATOR_MODEL", "claude-opus-4-7")
-TRIAGE_MODEL = os.getenv("TRIAGE_MODEL", "claude-haiku-4-5")
-ROUTING_MODEL = os.getenv("ROUTING_MODEL", "claude-haiku-4-5")
-ESCALATION_MODEL = os.getenv("ESCALATION_MODEL", "claude-sonnet-4-6")
+# ── AWS / Bedrock ─────────────────────────────────────────────────────────────
+AWS_PROFILE = os.getenv("AWS_PROFILE", "bootcamp")
+AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
+
+# ── Models (Bedrock cross-region inference profile IDs) ───────────────────────
+COORDINATOR_MODEL = os.getenv("COORDINATOR_MODEL", "us.anthropic.claude-opus-4-7")
+TRIAGE_MODEL      = os.getenv("TRIAGE_MODEL",      "us.anthropic.claude-haiku-4-5-20251001-v1:0")
+ROUTING_MODEL     = os.getenv("ROUTING_MODEL",     "us.anthropic.claude-haiku-4-5-20251001-v1:0")
+ESCALATION_MODEL  = os.getenv("ESCALATION_MODEL",  "us.anthropic.claude-sonnet-4-6")
 
 # ── Supported categories ──────────────────────────────────────────────────────
 CATEGORIES: list[str] = [

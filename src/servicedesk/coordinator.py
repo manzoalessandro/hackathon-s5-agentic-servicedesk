@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import json
-import anthropic
 
-from servicedesk.config import COORDINATOR_MODEL
+from anthropic import AnthropicBedrock
+from servicedesk.config import COORDINATOR_MODEL, AWS_PROFILE
 from servicedesk.models.schemas import (
     IncomingTicket,
     UserInfo,
@@ -25,7 +25,7 @@ from servicedesk.tools import (
 )
 
 
-_client = anthropic.Anthropic()
+_client = AnthropicBedrock(aws_profile=AWS_PROFILE)
 
 _COORDINATOR_TOOLS = [
     lookup_ticket,
@@ -37,6 +37,9 @@ _COORDINATOR_TOOLS = [
     search_knowledge_base,
     get_similar_tickets,
 ]
+
+# Bedrock requires plain dicts; BetaFunctionTool.to_dict() produces the right format.
+_COORDINATOR_TOOL_DEFS = [t.to_dict() for t in _COORDINATOR_TOOLS]
 
 _SYSTEM_PROMPT = [
     {
@@ -68,7 +71,7 @@ with coordinator_notes summarising what actions were taken.
 
 
 def _run_tool(name: str, tool_input: dict) -> str:
-    tool_map = {t.__name__: t for t in _COORDINATOR_TOOLS}
+    tool_map = {t.name: t for t in _COORDINATOR_TOOLS}
     fn = tool_map.get(name)
     if fn is None:
         return json.dumps({
@@ -124,6 +127,28 @@ def process_ticket(ticket_id: str) -> TicketDecision:
     escalation = run_escalation(ticket, user, triage, routing)
 
     # ── Stage 4: Coordinator tool-loop ────────────────────────────────────────
+    coordinator_notes = _run_coordinator_loop(ticket, user, triage, routing, escalation)
+
+    # ── Stage 5: Build final TicketDecision ───────────────────────────────────
+    return TicketDecision(
+        ticket_id=ticket.ticket_id,
+        triage=triage,
+        routing=routing,
+        escalation=escalation,
+        coordinator_notes=coordinator_notes,
+    )
+
+
+def _run_coordinator_loop(
+    ticket: IncomingTicket,
+    user: "UserInfo",
+    triage: "TriageResult",
+    routing: "RoutingResult",
+    escalation: "EscalationResult",
+) -> str:
+    """Execute the coordinator tool loop and return coordinator_notes string."""
+    from servicedesk.models.schemas import UserInfo, TriageResult, RoutingResult, EscalationResult  # noqa: F401
+
     decision_context = f"""Ticket: {ticket.ticket_id}
 Subject: {ticket.subject}
 Requester: {user.name} (VIP: {user.is_vip})
@@ -151,14 +176,12 @@ Execute the required tool calls, then output the final TicketDecision JSON.
     coordinator_notes: list[str] = []
 
     while tool_call_count < 8:
-        response = _client.beta.messages.create(
+        response = _client.messages.create(
             model=COORDINATOR_MODEL,
             max_tokens=2048,
             system=_SYSTEM_PROMPT,
-            tools=_COORDINATOR_TOOLS,
+            tools=_COORDINATOR_TOOL_DEFS,
             messages=messages,
-            thinking={"type": "adaptive"},
-            betas=["interleaved-thinking-2025-05-14"],
         )
 
         messages.append({"role": "assistant", "content": response.content})
@@ -173,7 +196,7 @@ Execute the required tool calls, then output the final TicketDecision JSON.
                     continue
                 tool_call_count += 1
                 result_str = _run_tool(block.name, block.input)
-                coordinator_notes.append(f"{block.name}({json.dumps(block.input)}) → {result_str[:120]}")
+                coordinator_notes.append(f"{block.name}({json.dumps(block.input)}) -> {result_str[:120]}")
                 tool_results.append({
                     "type": "tool_result",
                     "tool_use_id": block.id,
@@ -183,11 +206,4 @@ Execute the required tool calls, then output the final TicketDecision JSON.
         else:
             break
 
-    # ── Stage 5: Build final TicketDecision ───────────────────────────────────
-    return TicketDecision(
-        ticket_id=ticket.ticket_id,
-        triage=triage,
-        routing=routing,
-        escalation=escalation,
-        coordinator_notes="; ".join(coordinator_notes) or "Pipeline completed.",
-    )
+    return "; ".join(coordinator_notes) or "Pipeline completed."

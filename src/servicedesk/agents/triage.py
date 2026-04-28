@@ -1,12 +1,12 @@
 """Triage subagent — classifies a ticket into category, priority, impact, and confidence."""
 from __future__ import annotations
 
-import anthropic
-from servicedesk.config import TRIAGE_MODEL, CATEGORIES
+from anthropic import AnthropicBedrock
+from servicedesk.config import TRIAGE_MODEL, CATEGORIES, AWS_PROFILE
 from servicedesk.models.schemas import IncomingTicket, UserInfo, TriageResult
 
 
-_client = anthropic.Anthropic()
+_client = AnthropicBedrock(aws_profile=AWS_PROFILE)
 
 _SYSTEM_PROMPT = [
     {
@@ -57,12 +57,19 @@ Body:
 Requester: {user.name} (dept: {user.department}, VIP: {user.is_vip}, past tickets: {user.past_ticket_count})
 """
 
-    response = _client.beta.messages.parse(
+    response = _client.messages.create(
         model=TRIAGE_MODEL,
         max_tokens=512,
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_message}],
-        response_format=TriageResult,
-        betas=["interleaved-thinking-2025-05-14"],
+        tools=[{
+            "name": "result",
+            "description": "Return the triage classification.",
+            "input_schema": TriageResult.model_json_schema(),
+        }],
+        tool_choice={"type": "tool", "name": "result"},
     )
-    return response.parsed
+    for block in response.content:
+        if block.type == "tool_use":
+            return TriageResult(**block.input)
+    raise ValueError("Triage subagent returned no tool_use block")

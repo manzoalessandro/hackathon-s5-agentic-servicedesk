@@ -1,11 +1,12 @@
 """Escalation subagent — decides whether and how to escalate based on 3-factor logic."""
 from __future__ import annotations
 
-import anthropic
+from anthropic import AnthropicBedrock
 from servicedesk.config import (
     ESCALATION_MODEL,
     LOW_CONFIDENCE_THRESHOLD,
     AUTO_ROUTE_CONFIDENCE,
+    AWS_PROFILE,
 )
 from servicedesk.models.schemas import (
     IncomingTicket,
@@ -17,7 +18,7 @@ from servicedesk.models.schemas import (
 )
 
 
-_client = anthropic.Anthropic()
+_client = AnthropicBedrock(aws_profile=AWS_PROFILE)
 
 _SYSTEM_PROMPT = [
     {
@@ -122,13 +123,19 @@ Routed to: {routing.team_id} ({routing.queue}) | SLA: {routing.sla_minutes} min
 Determine whether this ticket needs escalation, which tier, the reason, and who to notify.
 """
 
-    response = _client.beta.messages.parse(
+    response = _client.messages.create(
         model=ESCALATION_MODEL,
         max_tokens=512,
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_message}],
-        response_format=EscalationResult,
-        thinking={"type": "adaptive"},
-        betas=["interleaved-thinking-2025-05-14"],
+        tools=[{
+            "name": "result",
+            "description": "Return the escalation decision.",
+            "input_schema": EscalationResult.model_json_schema(),
+        }],
+        tool_choice={"type": "tool", "name": "result"},
     )
-    return response.parsed
+    for block in response.content:
+        if block.type == "tool_use":
+            return EscalationResult(**block.input)
+    raise ValueError("Escalation subagent returned no tool_use block")
