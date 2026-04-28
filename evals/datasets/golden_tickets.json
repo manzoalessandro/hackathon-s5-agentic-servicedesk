@@ -1,0 +1,212 @@
+[
+  {
+    "ticket_id": "EVAL-G-001",
+    "subject": "Cannot connect to VPN from home",
+    "body": "Since the weekend update I can't establish a VPN connection. Error message: 'Authentication failed'. I've tried restarting my machine. Other colleagues in my team seem fine.",
+    "requester_id": "usr-42",
+    "created_at": "2026-04-28T08:00:00Z",
+    "expected": {
+      "category": "network_issue",
+      "priority": "P3",
+      "impact": "low",
+      "should_escalate": false,
+      "escalation_tier": "none"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-002",
+    "subject": "URGENT: Production Postgres cluster down — all writes failing",
+    "body": "All writes to the production Postgres cluster are returning 'connection refused' since 09:00. Read replicas are OK. We're losing approximately €5000/minute in failed transactions. All engineers from our team are engaged.",
+    "requester_id": "usr-07",
+    "created_at": "2026-04-28T09:15:00Z",
+    "expected": {
+      "category": "outage",
+      "priority": "P1",
+      "impact": "critical",
+      "should_escalate": true,
+      "escalation_tier": "management"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-003",
+    "subject": "Password reset request for new joiner",
+    "body": "Hi, I'm onboarding a new team member tomorrow and they need their initial password set for the corporate SSO. Their username is jsmith@example.com. Thanks.",
+    "requester_id": "usr-42",
+    "created_at": "2026-04-28T10:00:00Z",
+    "expected": {
+      "category": "access_request",
+      "priority": "P4",
+      "impact": "low",
+      "should_escalate": false,
+      "escalation_tier": "none"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-004",
+    "subject": "Suspected phishing email in inbox",
+    "body": "I received an email claiming to be from IT asking me to confirm my credentials via a link. The sender domain looks off (it-support@acme-corp-helpdesk.ru). I have not clicked the link. Forwarding the email separately.",
+    "requester_id": "usr-42",
+    "created_at": "2026-04-28T10:30:00Z",
+    "expected": {
+      "category": "security_incident",
+      "priority": "P2",
+      "impact": "high",
+      "should_escalate": true,
+      "escalation_tier": "security"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-005",
+    "subject": "Laptop keyboard stopped working",
+    "body": "The keyboard on my Dell XPS 15 stopped responding after I spilled a small amount of coffee on it this morning. I'm using a USB keyboard for now. Model: XPS 9520, serial: ABC123.",
+    "requester_id": "usr-42",
+    "created_at": "2026-04-28T11:00:00Z",
+    "expected": {
+      "category": "hardware_failure",
+      "priority": "P3",
+      "impact": "low",
+      "should_escalate": false,
+      "escalation_tier": "none"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-006",
+    "subject": "Invoice approval app throwing 500 errors for all users",
+    "body": "The invoice approval application (finance-portal.internal) has been returning HTTP 500 for all users since 14:00. The finance team cannot process any approvals — end-of-month close is tomorrow. Approx 80 users affected.",
+    "requester_id": "usr-99",
+    "created_at": "2026-04-28T14:05:00Z",
+    "expected": {
+      "category": "outage",
+      "priority": "P1",
+      "impact": "critical",
+      "should_escalate": true,
+      "escalation_tier": "management"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-007",
+    "subject": "Request for additional cloud storage quota",
+    "body": "Our team has hit the 1TB limit on the shared project storage bucket. We need an increase to 2TB to store the Q2 data exports. Approval from our department head (cc'd) is attached.",
+    "requester_id": "usr-99",
+    "created_at": "2026-04-28T09:00:00Z",
+    "expected": {
+      "category": "provisioning",
+      "priority": "P4",
+      "impact": "low",
+      "should_escalate": false,
+      "escalation_tier": "none"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-008",
+    "subject": "API gateway latency increased 10x since deployment",
+    "body": "After yesterday's deployment of api-gateway v2.4.1, p99 latency on the /orders endpoint jumped from 80ms to 900ms. Traffic is normal. We've rolled back the feature flag but latency remains high. 3 customer SLAs are at risk.",
+    "requester_id": "usr-99",
+    "created_at": "2026-04-28T08:30:00Z",
+    "expected": {
+      "category": "performance_degradation",
+      "priority": "P2",
+      "impact": "high",
+      "should_escalate": true,
+      "escalation_tier": "l2"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-009",
+    "subject": "Wrong billing amount on last invoice",
+    "body": "Invoice INV-2026-0312 shows €12,400 but our contract specifies €10,200/month. We have not yet paid. Please review and issue a corrected invoice before EOM.",
+    "requester_id": "usr-42",
+    "created_at": "2026-04-28T11:30:00Z",
+    "expected": {
+      "category": "billing",
+      "priority": "P3",
+      "impact": "medium",
+      "should_escalate": false,
+      "escalation_tier": "none"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-010",
+    "subject": "Need to provision 15 new developer accounts for M&A integration",
+    "body": "As part of the ERACLITO programme we need to create 15 new Azure AD accounts for the integration team starting next Monday. List attached. Manager approval is in the ticket.",
+    "requester_id": "usr-07",
+    "created_at": "2026-04-28T12:00:00Z",
+    "expected": {
+      "category": "provisioning",
+      "priority": "P2",
+      "impact": "medium",
+      "should_escalate": true,
+      "escalation_tier": "l2"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-011",
+    "subject": "Printer on 3rd floor jammed",
+    "body": "The HP LaserJet on the 3rd floor near the coffee machine has a paper jam. I've tried clearing it from the tray but the error persists on the display.",
+    "requester_id": "usr-42",
+    "created_at": "2026-04-28T13:00:00Z",
+    "expected": {
+      "category": "hardware_failure",
+      "priority": "P4",
+      "impact": "low",
+      "should_escalate": false,
+      "escalation_tier": "none"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-012",
+    "subject": "Possible ransomware — files renamed with .locked extension",
+    "body": "I found multiple files on my desktop renamed to *.locked and a ransom note txt file appeared. I've immediately disconnected my machine from the network. This is on host LAPTOP-ALICE. Please respond urgently.",
+    "requester_id": "usr-42",
+    "created_at": "2026-04-28T15:00:00Z",
+    "expected": {
+      "category": "security_incident",
+      "priority": "P1",
+      "impact": "critical",
+      "should_escalate": true,
+      "escalation_tier": "security"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-013",
+    "subject": "Database backup job failing nightly",
+    "body": "The nightly full backup of the analytics-db has been failing for 3 days with 'disk quota exceeded'. No data has been lost yet, but we are outside our RPO window and a single disk failure would mean data loss.",
+    "requester_id": "usr-99",
+    "created_at": "2026-04-28T07:00:00Z",
+    "expected": {
+      "category": "data_loss",
+      "priority": "P2",
+      "impact": "high",
+      "should_escalate": true,
+      "escalation_tier": "l2"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-014",
+    "subject": "Software license expired — team cannot use Figma",
+    "body": "Our Figma team license expired yesterday. 8 designers are blocked from working on the Q2 design system deliverable due Thursday. Finance approval was submitted last week.",
+    "requester_id": "usr-42",
+    "created_at": "2026-04-28T09:45:00Z",
+    "expected": {
+      "category": "software_bug",
+      "priority": "P2",
+      "impact": "medium",
+      "should_escalate": false,
+      "escalation_tier": "none"
+    }
+  },
+  {
+    "ticket_id": "EVAL-G-015",
+    "subject": "CI/CD pipeline stuck — no builds completing",
+    "body": "All GitHub Actions runners appear to be hung. No builds have completed in the last 2 hours. 6 releases are blocked including a hotfix for production. Self-hosted runner fleet shows all agents in 'busy' state.",
+    "requester_id": "usr-99",
+    "created_at": "2026-04-28T10:00:00Z",
+    "expected": {
+      "category": "outage",
+      "priority": "P1",
+      "impact": "high",
+      "should_escalate": true,
+      "escalation_tier": "management"
+    }
+  }
+]
